@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_boilerplate/constants.dart';
-import 'package:flutter_webview_boilerplate/home.dart';
+import 'package:flutter_webview_boilerplate/widgets/home.dart';
 
 void main() {
   runApp(MyApp());
