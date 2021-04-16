@@ -12,24 +12,33 @@ class WebViewContainer extends StatefulWidget {
 class _WebViewContainerState extends State<WebViewContainer> {
   final _key = UniqueKey();
 
+  Future<bool> _onBack() async {}
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: InAppWebView(
-            key: _key,
-            initialOptions: InAppWebViewGroupOptions(
-                crossPlatform:
-                    InAppWebViewOptions(useShouldOverrideUrlLoading: true)),
-            initialUrlRequest: URLRequest(url: Uri.parse(WEBSITE_URL)),
-            shouldOverrideUrlLoading: (InAppWebViewController controller,
-                NavigationAction navigationAction) async {
-              String url = navigationAction.request.url.toString();
-              bool shouldOpenApp = isAppLink(url);
-              if (shouldOpenApp) {
-                await launch(url);
-                return NavigationActionPolicy.CANCEL;
-              }
-              return NavigationActionPolicy.ALLOW;
-            }));
+    return Column(
+      children: [
+        Expanded(
+            child: WillPopScope(
+                onWillPop: _onBack,
+                child: InAppWebView(
+                    key: _key,
+                    initialOptions: InAppWebViewGroupOptions(
+                        crossPlatform: InAppWebViewOptions(
+                            useShouldOverrideUrlLoading: true)),
+                    initialUrlRequest: URLRequest(url: Uri.parse(WEBSITE_URL)),
+                    shouldOverrideUrlLoading:
+                        (InAppWebViewController controller,
+                            NavigationAction navigationAction) async {
+                      String url = navigationAction.request.url.toString();
+                      bool shouldOpenApp = isAppLink(url);
+                      if (shouldOpenApp) {
+                        await launch(url);
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                      return NavigationActionPolicy.ALLOW;
+                    })))
+      ],
+    );
   }
 }
