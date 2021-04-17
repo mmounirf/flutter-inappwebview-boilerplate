@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_webview_boilerplate/constants.dart';
 import 'package:flutter_webview_boilerplate/utils/isAppLink.dart';
@@ -11,8 +12,40 @@ class WebViewContainer extends StatefulWidget {
 
 class _WebViewContainerState extends State<WebViewContainer> {
   final _key = UniqueKey();
+  bool goBack;
+  InAppWebViewController webView;
 
-  Future<bool> _onBack() async {}
+  Future<bool> _onBack() async {
+    bool canGoBack = await webView.canGoBack();
+    if (canGoBack) {
+      webView.goBack();
+      return false;
+    } else {
+      await showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+                  title: new Text('Exit Confirmation'),
+                  content: new Text('Do you really want to exit $APP_TITLE'),
+                  actions: <Widget>[
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                          setState(() {
+                            goBack = false;
+                          });
+                        },
+                        child: new Text('No')),
+                    TextButton(
+                        onPressed: () {
+                          SystemNavigator.pop();
+                          setState(() {
+                            goBack = true;
+                          });
+                        },
+                        child: new Text('Yes'))
+                  ]));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +60,9 @@ class _WebViewContainerState extends State<WebViewContainer> {
                         crossPlatform: InAppWebViewOptions(
                             useShouldOverrideUrlLoading: true)),
                     initialUrlRequest: URLRequest(url: Uri.parse(WEBSITE_URL)),
+                    onWebViewCreated: (InAppWebViewController controller) {
+                      webView = controller;
+                    },
                     shouldOverrideUrlLoading:
                         (InAppWebViewController controller,
                             NavigationAction navigationAction) async {
