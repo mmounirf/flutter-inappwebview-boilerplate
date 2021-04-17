@@ -24,26 +24,23 @@ class _WebViewContainerState extends State<WebViewContainer> {
       await showDialog(
           context: context,
           builder: (context) => new AlertDialog(
-                  title: new Text('Exit Confirmation'),
-                  content: new Text('Do you really want to exit $APP_TITLE'),
-                  actions: <Widget>[
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                          setState(() {
-                            goBack = false;
-                          });
-                        },
-                        child: new Text('No')),
-                    TextButton(
-                        onPressed: () {
-                          SystemNavigator.pop();
-                          setState(() {
-                            goBack = true;
-                          });
-                        },
-                        child: new Text('Yes'))
-                  ]));
+                title: new Text('Exit Confirmation'),
+                content: new Text('Do you really want to exit $APP_TITLE'),
+                actions: <Widget>[
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                        setState(() => goBack = false);
+                      },
+                      child: new Text('No')),
+                  TextButton(
+                      onPressed: () {
+                        SystemNavigator.pop();
+                        setState(() => goBack = true);
+                      },
+                      child: new Text('Yes'))
+                ],
+              ));
     }
   }
 
@@ -52,28 +49,28 @@ class _WebViewContainerState extends State<WebViewContainer> {
     return Column(
       children: [
         Expanded(
-            child: WillPopScope(
-                onWillPop: _onBack,
-                child: InAppWebView(
-                    key: _key,
-                    initialOptions: InAppWebViewGroupOptions(
-                        crossPlatform: InAppWebViewOptions(
-                            useShouldOverrideUrlLoading: true)),
-                    initialUrlRequest: URLRequest(url: Uri.parse(WEBSITE_URL)),
-                    onWebViewCreated: (InAppWebViewController controller) {
-                      webView = controller;
-                    },
-                    shouldOverrideUrlLoading:
-                        (InAppWebViewController controller,
-                            NavigationAction navigationAction) async {
-                      String url = navigationAction.request.url.toString();
-                      bool shouldOpenApp = isAppLink(url);
-                      if (shouldOpenApp) {
-                        await launch(url);
-                        return NavigationActionPolicy.CANCEL;
-                      }
-                      return NavigationActionPolicy.ALLOW;
-                    })))
+          child: WillPopScope(
+            onWillPop: _onBack,
+            child: InAppWebView(
+                key: _key,
+                initialOptions: InAppWebViewGroupOptions(
+                    crossPlatform:
+                        InAppWebViewOptions(useShouldOverrideUrlLoading: true)),
+                initialUrlRequest: URLRequest(url: Uri.parse(WEBSITE_URL)),
+                onWebViewCreated: (InAppWebViewController controller) =>
+                    webView = controller,
+                shouldOverrideUrlLoading: (InAppWebViewController controller,
+                    NavigationAction navigationAction) async {
+                  String url = navigationAction.request.url.toString();
+                  bool shouldOpenApp = isAppLink(url);
+                  if (shouldOpenApp) {
+                    await launch(url);
+                    return NavigationActionPolicy.CANCEL;
+                  }
+                  return NavigationActionPolicy.ALLOW;
+                }),
+          ),
+        ),
       ],
     );
   }
